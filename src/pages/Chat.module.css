@@ -1,0 +1,16 @@
+.page { display: flex; flex-direction: column; gap: 22px; height: 100%; margin: 0 auto; max-width: 920px; }
+.conversation { background: #111827; border: 1px solid #26334a; border-radius: 14px; display: flex; flex: 1; flex-direction: column; gap: 14px; min-height: 260px; overflow: auto; padding: 18px; }
+.empty { color: #94a3b8; margin: auto; text-align: center; }
+.message { border-radius: 10px; max-width: 84%; padding: 11px 13px; }
+.user { align-self: flex-end; background: #4338ca; color: white; }
+.assistant { align-self: flex-start; background: #1e293b; color: #e2e8f0; }
+.speaker { display: block; font-size: .72rem; font-weight: 700; margin-bottom: 5px; opacity: .75; text-transform: uppercase; }
+.message p { line-height: 1.5; margin: 0; white-space: pre-wrap; }
+.composer { display: flex; flex-direction: column; gap: 10px; }
+.composer textarea { background: #0b1220; border: 1px solid #334155; border-radius: 10px; color: #e2e8f0; font: inherit; min-height: 90px; padding: 12px; resize: vertical; }
+.composer textarea:focus { border-color: #818cf8; outline: 2px solid rgb(129 140 248 / 22%); }
+.actions { align-items: center; display: flex; gap: 12px; justify-content: space-between; }
+.error { color: #fda4af; font-size: .9rem; margin: 0; }
+.loading { align-items: center; color: #a5b4fc; display: flex; gap: 8px; font-size: .9rem; }
+.loader { animation: pulse .9s infinite alternate; background: currentColor; border-radius: 50%; height: 8px; width: 8px; }
+@keyframes pulse { to { opacity: .25; transform: scale(.65); } }

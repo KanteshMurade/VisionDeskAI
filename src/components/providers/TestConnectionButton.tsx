@@ -3,7 +3,7 @@ import Button from "../ui/Button";
 interface TestConnectionButtonProps {
   idleLabel?: string;
   isTesting: boolean;
-  onTest: () => void;
+  onTest: () => Promise<void> | void;
 }
 
 export default function TestConnectionButton({ idleLabel = "Test Connection", isTesting, onTest }: TestConnectionButtonProps) {

@@ -1,4 +1,5 @@
 .page { display: flex; flex-direction: column; gap: 26px; margin: 0 auto; max-width: 1120px; min-height: 100%; }
 .grid { display: grid; gap: 18px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: auto; padding-top: 8px; }
+.testError { color: #fda4af; font-size: .82rem; margin: 0; }
 @media (max-width: 760px) { .grid { grid-template-columns: 1fr; } }

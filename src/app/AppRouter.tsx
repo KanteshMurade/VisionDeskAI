@@ -6,6 +6,7 @@ import OCR from "../pages/OCR";
 import Memory from "../pages/Memory";
 import Plugins from "../pages/Plugins";
 import Settings from "../pages/Settings";
+import Chat from "../pages/Chat";
 
 import MainLayout from "../layout/MainLayout";
 
@@ -20,6 +21,7 @@ export default function AppRouter() {
           <Route path="/memory" element={<Memory />} />
           <Route path="/plugins" element={<Plugins />} />
           <Route path="/settings" element={<Settings />} />
+          <Route path="/chat" element={<Chat />} />
         </Routes>
       </MainLayout>
     </BrowserRouter>

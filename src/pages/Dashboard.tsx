@@ -12,8 +12,9 @@ interface ServiceStatus {
   value: string;
 }
 
-const getServiceStatuses = (providerName: string, providerStatus: string): readonly ServiceStatus[] => [
+const getServiceStatuses = (providerName: string, model: string, providerStatus: string): readonly ServiceStatus[] => [
   { label: "AI Provider", value: providerName, status: providerStatus },
+  { label: "Current Model", value: model },
   { label: "OCR Engine", value: "Stopped" },
   { label: "Overlay", value: "Disabled" },
 ];
@@ -21,7 +22,7 @@ const getServiceStatuses = (providerName: string, providerStatus: string): reado
 export default function Dashboard() {
   const providers = useSettingsStore((state) => state.providers);
   const activeProvider = providers.find((provider) => provider.status === "connected") ?? providers.find((provider) => provider.id === "gemini");
-  const serviceStatuses = getServiceStatuses(activeProvider?.name ?? "Not Configured", activeProvider?.status === "connected" ? "Connected" : "Not Configured");
+  const serviceStatuses = getServiceStatuses(activeProvider?.name ?? "Not Configured", activeProvider?.model || "Not selected", activeProvider?.status === "connected" ? "Connected" : "Not Configured");
   return (
     <div className={styles.dashboard}>
       <Header title="VisionDesk AI" subtitle="Personal AI Desktop Assistant" />
