@@ -1,0 +1,12 @@
+.card, .disabled { min-height: 270px; }
+.disabled { opacity: .7; }
+.heading, .providerName { align-items: center; display: flex; }
+.heading { justify-content: space-between; gap: 16px; }
+.providerName { gap: 10px; }
+.providerName h2 { color: #f8fafc; font-size: 1.08rem; margin: 0; }
+.icon { color: #a5b4fc; display: grid; font-size: 1.2rem; place-items: center; }
+.content { display: grid; gap: 15px; margin-top: 20px; }
+.content label { color: #cbd5e1; display: grid; font-size: .84rem; font-weight: 600; gap: 7px; }
+.content input, .content select { background: #0b1220; border: 1px solid #334155; border-radius: 8px; color: #e2e8f0; font: inherit; padding: 10px 11px; width: 100%; }
+.content input:focus, .content select:focus { border-color: #818cf8; outline: 2px solid rgb(129 140 248 / 22%); }
+.comingSoon { color: #94a3b8; margin: 22px 0 0; }

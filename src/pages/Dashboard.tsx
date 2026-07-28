@@ -3,6 +3,7 @@ import Card from "../components/ui/Card";
 import Header from "../components/ui/Header";
 import SectionTitle from "../components/ui/SectionTitle";
 import StatusBar from "../components/ui/StatusBar";
+import { useSettingsStore } from "../stores/useSettingsStore";
 import styles from "./Dashboard.module.css";
 
 interface ServiceStatus {
@@ -11,13 +12,16 @@ interface ServiceStatus {
   value: string;
 }
 
-const serviceStatuses: readonly ServiceStatus[] = [
-  { label: "AI Provider", value: "Gemini", status: "Connected" },
+const getServiceStatuses = (providerName: string, providerStatus: string): readonly ServiceStatus[] => [
+  { label: "AI Provider", value: providerName, status: providerStatus },
   { label: "OCR Engine", value: "Stopped" },
   { label: "Overlay", value: "Disabled" },
 ];
 
 export default function Dashboard() {
+  const providers = useSettingsStore((state) => state.providers);
+  const activeProvider = providers.find((provider) => provider.status === "connected") ?? providers.find((provider) => provider.id === "gemini");
+  const serviceStatuses = getServiceStatuses(activeProvider?.name ?? "Not Configured", activeProvider?.status === "connected" ? "Connected" : "Not Configured");
   return (
     <div className={styles.dashboard}>
       <Header title="VisionDesk AI" subtitle="Personal AI Desktop Assistant" />
@@ -31,7 +35,7 @@ export default function Dashboard() {
               <p className={styles.statusValue}>{value}</p>
               {status && (
                 <div className={styles.statusFooter}>
-                  <Badge showIndicator tone="success">{status}</Badge>
+                  <Badge showIndicator tone={status === "Connected" ? "success" : "warning"}>{status}</Badge>
                 </div>
               )}
             </Card>
