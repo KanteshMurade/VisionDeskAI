@@ -1,5 +1,5 @@
 export interface GeminiContent {
-  parts: Array<{ text: string }>;
+  parts: Array<{ text?: string; inlineData?: { mimeType: string; data: string } }>;
   role: "user" | "model";
 }
 

@@ -2,12 +2,13 @@ import { useState } from "react";
 import Button from "../components/ui/Button";
 import Header from "../components/ui/Header";
 import SectionTitle from "../components/ui/SectionTitle";
+import VisionPanel from "../components/ui/VisionPanel";
 import { screenshotService } from "../services/ScreenshotService";
 import { ocrService } from "../services/OCRService";
+import { visionService } from "../services/VisionService";
 import { useScreenshotStore } from "../stores/useScreenshotStore";
 import { useOCRStore } from "../stores/useOCRStore";
-import { useChatStore } from "../stores/useChatStore";
-import type { ChatMessage } from "../types/ChatMessage";
+import { useVisionStore } from "../stores/useVisionStore";
 import styles from "./Capture.module.css";
 
 export default function Capture() {
@@ -21,7 +22,13 @@ export default function Capture() {
   const ocrError = useOCRStore((state) => state.error);
   const setOCRError = useOCRStore((state) => state.setError);
   const clearOCR = useOCRStore((state) => state.clear);
-  const addMessage = useChatStore((state) => state.addMessage);
+  const analysisResult = useVisionStore((state) => state.analysisResult);
+  const setAnalysisResult = useVisionStore((state) => state.setAnalysisResult);
+  const isAnalyzing = useVisionStore((state) => state.isAnalyzing);
+  const setIsAnalyzing = useVisionStore((state) => state.setIsAnalyzing);
+  const visionError = useVisionStore((state) => state.error);
+  const setVisionError = useVisionStore((state) => state.setError);
+  const clearVision = useVisionStore((state) => state.clear);
   const [isCapturing, setIsCapturing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -66,14 +73,27 @@ export default function Capture() {
     clearOCR();
   };
 
-  const analyzeWithGemini = () => {
-    if (!extractedText) return;
-    const userMessage: ChatMessage = {
-      id: crypto.randomUUID(),
-      role: "user",
-      content: extractedText,
-    };
-    addMessage(userMessage);
+  const analyzeScreenshot = async (prompt: string) => {
+    if (!screenshot) return;
+    setIsAnalyzing(true);
+    setVisionError(null);
+    try {
+      const result = await visionService.analyzeScreenshot(screenshot.imageDataUrl, extractedText, prompt);
+      setAnalysisResult(result);
+    } catch (caught: unknown) {
+      setVisionError(caught instanceof Error ? caught.message : "Vision analysis failed.");
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
+
+  const copyResponse = async () => {
+    if (!analysisResult) return;
+    try {
+      await navigator.clipboard.writeText(analysisResult);
+    } catch (caught: unknown) {
+      setError(caught instanceof Error ? caught.message : "Failed to copy response.");
+    }
   };
 
   return (
@@ -90,7 +110,7 @@ export default function Capture() {
       </div>
       {screenshot && (
         <section aria-label="OCR extraction">
-          <SectionTitle title="Extract Text" />
+          <SectionTitle title="OCR" />
           <div className={styles.ocrActions}>
             <Button disabled={isProcessingOCR} onClick={extractText}>
               {isProcessingOCR ? "Processing…" : "Extract Text"}
@@ -105,12 +125,23 @@ export default function Capture() {
               <div className={styles.ocrTextActions}>
                 <Button onClick={copyText} variant="secondary">Copy Text</Button>
                 <Button onClick={clearText} variant="ghost">Clear</Button>
-                <Button onClick={analyzeWithGemini}>Analyze with Gemini</Button>
               </div>
             </div>
           )}
         </section>
       )}
+      <section aria-label="AI Analysis">
+        <SectionTitle title="AI Analysis" />
+        <VisionPanel
+          imageDataUrl={screenshot?.imageDataUrl ?? null}
+          onAnalyze={analyzeScreenshot}
+          isAnalyzing={isAnalyzing}
+          analysisResult={analysisResult}
+          error={visionError}
+          onClear={clearVision}
+          onCopyResponse={copyResponse}
+        />
+      </section>
     </div>
   );
 }
