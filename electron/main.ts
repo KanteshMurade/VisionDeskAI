@@ -25,6 +25,7 @@ export const RENDERER_DIST = path.join(process.env.APP_ROOT, 'dist')
 process.env.VITE_PUBLIC = VITE_DEV_SERVER_URL ? path.join(process.env.APP_ROOT, 'public') : RENDERER_DIST
 
 let win: ElectronBrowserWindow | null
+let regionCaptureWindow: ElectronBrowserWindow | null
 
 function screenshotDirectory() { return path.join(app.getPath('userData'), 'screenshots') }
 
@@ -66,6 +67,103 @@ ipcMain.handle('screenshot:delete', async (_event, imagePath: string) => {
   const relativePath = path.relative(directory, imagePath)
   if (relativePath.startsWith('..') || path.isAbsolute(relativePath)) throw new Error('Invalid screenshot path.')
   await unlink(imagePath)
+})
+
+function createRegionCaptureWindow() {
+  const primaryDisplay = screen.getPrimaryDisplay()
+  regionCaptureWindow = new BrowserWindow({
+    width: primaryDisplay.size.width,
+    height: primaryDisplay.size.height,
+    x: primaryDisplay.bounds.x,
+    y: primaryDisplay.bounds.y,
+    frame: false,
+    transparent: true,
+    alwaysOnTop: true,
+    skipTaskbar: true,
+    resizable: false,
+    movable: false,
+    webPreferences: {
+      contextIsolation: false,
+      nodeIntegration: true,
+    },
+  })
+
+  // Load the HTML file from the source directory during development, or dist-electron during production
+  const htmlPath = VITE_DEV_SERVER_URL 
+    ? path.join(process.env.APP_ROOT, 'electron', 'region-capture.html')
+    : path.join(__dirname, 'region-capture.html')
+  
+  regionCaptureWindow.loadFile(htmlPath)
+
+  regionCaptureWindow.on('closed', () => {
+    regionCaptureWindow = null
+    if (win && !win.isDestroyed()) {
+      win.show()
+      win.focus()
+    }
+  })
+}
+
+async function captureRegion(x: number, y: number, width: number, height: number) {
+  const primaryDisplay = screen.getPrimaryDisplay()
+  const sources = await desktopCapturer.getSources({
+    types: ['screen'],
+    thumbnailSize: { width: primaryDisplay.size.width, height: primaryDisplay.size.height },
+  })
+  const source = sources.find((candidate) => candidate.display_id === String(primaryDisplay.id))
+    ?? sources.find((candidate) => !candidate.thumbnail.isEmpty())
+  if (!source) throw new Error('No capturable display was found.')
+
+  const fullImage = source.thumbnail
+  const croppedImage = fullImage.crop({
+    x: Math.floor(x),
+    y: Math.floor(y),
+    width: Math.floor(width),
+    height: Math.floor(height),
+  })
+
+  const id = crypto.randomUUID()
+  const timestamp = new Date().toISOString()
+  const directory = screenshotDirectory()
+  const imagePath = path.join(directory, `${id}.png`)
+  await mkdir(directory, { recursive: true })
+  await writeFile(imagePath, croppedImage.toPNG())
+  return { id, imageDataUrl: croppedImage.toDataURL(), imagePath, timestamp }
+}
+
+ipcMain.handle('region-capture:start', () => {
+  if (win && !win.isDestroyed()) {
+    win.hide()
+  }
+  createRegionCaptureWindow()
+})
+
+ipcMain.handle('region-capture:capture', async (_event, x: number, y: number, width: number, height: number) => {
+  // Hide the overlay window before capturing to avoid capturing it
+  if (regionCaptureWindow && !regionCaptureWindow.isDestroyed()) {
+    regionCaptureWindow.hide()
+  }
+  
+  // Small delay to ensure window is hidden
+  await new Promise(resolve => setTimeout(resolve, 100))
+  
+  const result = await captureRegion(x, y, width, height)
+  
+  if (regionCaptureWindow && !regionCaptureWindow.isDestroyed()) {
+    regionCaptureWindow.close()
+  }
+  
+  // Send the captured screenshot to the main window
+  if (win && !win.isDestroyed()) {
+    win.webContents.send('region-capture:complete', result)
+  }
+  return result
+})
+
+ipcMain.handle('region-capture:cancel', () => {
+  if (regionCaptureWindow && !regionCaptureWindow.isDestroyed()) {
+    regionCaptureWindow.close()
+  }
 })
 
 function createWindow() {

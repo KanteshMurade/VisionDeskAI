@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Button from "../components/ui/Button";
 import Header from "../components/ui/Header";
 import SectionTitle from "../components/ui/SectionTitle";
@@ -9,6 +9,7 @@ import { visionService } from "../services/VisionService";
 import { useScreenshotStore } from "../stores/useScreenshotStore";
 import { useOCRStore } from "../stores/useOCRStore";
 import { useVisionStore } from "../stores/useVisionStore";
+import type { Screenshot } from "../types/Screenshot";
 import styles from "./Capture.module.css";
 
 export default function Capture() {
@@ -32,6 +33,19 @@ export default function Capture() {
   const [isCapturing, setIsCapturing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  useEffect(() => {
+    const handleRegionCaptureComplete = (_event: Electron.IpcRendererEvent, data: Screenshot) => {
+      setScreenshot(data);
+      setIsCapturing(false);
+    };
+
+    window.ipcRenderer.on('region-capture:complete', handleRegionCaptureComplete);
+
+    return () => {
+      window.ipcRenderer.off('region-capture:complete', handleRegionCaptureComplete);
+    };
+  }, [setScreenshot]);
+
   const runAction = async (action: () => Promise<void>) => {
     setError(null);
     try { await action(); } catch (caught: unknown) { setError(caught instanceof Error ? caught.message : "Screenshot action failed."); }
@@ -41,6 +55,14 @@ export default function Capture() {
     await runAction(async () => setScreenshot(await screenshotService.captureFullScreen()));
     setIsCapturing(false);
   };
+
+  const captureRegion = async () => {
+    setIsCapturing(true);
+    await runAction(async () => {
+      await screenshotService.startRegionCapture();
+    });
+  };
+
   const deleteScreenshot = async () => {
     if (!screenshot) return;
     await runAction(async () => { await screenshotService.deleteScreenshot(screenshot.imagePath); clearScreenshot(); });
@@ -99,7 +121,7 @@ export default function Capture() {
   return (
     <div className={styles.page}>
       <Header title="Screenshot" subtitle="Capture your desktop." />
-      <section aria-label="Capture actions"><div className={styles.captureActions}><Button disabled={isCapturing} onClick={capture}>{isCapturing ? "Capturing…" : "Capture Full Screen"}</Button><Button disabled variant="secondary">Capture Region (Coming Soon)</Button></div></section>
+      <section aria-label="Capture actions"><div className={styles.captureActions}><Button disabled={isCapturing} onClick={capture}>{isCapturing ? "Capturing…" : "Capture Full Screen"}</Button><Button disabled={isCapturing} onClick={captureRegion} variant="secondary">{isCapturing ? "Capturing…" : "Capture Region"}</Button></div></section>
       <section aria-label="Screenshot preview"><SectionTitle title="Preview" /><div className={styles.preview}>{screenshot ? <img alt="Latest desktop capture" src={screenshot.imageDataUrl} /> : <p className={styles.empty}>Screenshot Preview</p>}</div></section>
       {screenshot && <p className={styles.timestamp}>Captured {new Date(screenshot.timestamp).toLocaleString()}</p>}
       {error && <p className={styles.error} role="alert">{error}</p>}

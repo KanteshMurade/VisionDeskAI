@@ -14,18 +14,16 @@ import MainLayout from "../layout/MainLayout";
 export default function AppRouter() {
   return (
     <BrowserRouter>
-      <MainLayout>
-        <Routes>
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/providers" element={<AIProviders />} />
-          <Route path="/ocr" element={<OCR />} />
-          <Route path="/memory" element={<Memory />} />
-          <Route path="/plugins" element={<Plugins />} />
-          <Route path="/settings" element={<Settings />} />
-          <Route path="/chat" element={<Chat />} />
-          <Route path="/capture" element={<Capture />} />
-        </Routes>
-      </MainLayout>
+      <Routes>
+        <Route path="/" element={<MainLayout><Dashboard /></MainLayout>} />
+        <Route path="/providers" element={<MainLayout><AIProviders /></MainLayout>} />
+        <Route path="/ocr" element={<MainLayout><OCR /></MainLayout>} />
+        <Route path="/memory" element={<MainLayout><Memory /></MainLayout>} />
+        <Route path="/plugins" element={<MainLayout><Plugins /></MainLayout>} />
+        <Route path="/settings" element={<MainLayout><Settings /></MainLayout>} />
+        <Route path="/chat" element={<MainLayout><Chat /></MainLayout>} />
+        <Route path="/capture" element={<MainLayout><Capture /></MainLayout>} />
+      </Routes>
     </BrowserRouter>
   );
 }

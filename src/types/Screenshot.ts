@@ -11,3 +11,9 @@ export interface ScreenshotCaptureApi {
   deleteScreenshot: (imagePath: string) => Promise<void>;
   saveScreenshot: (imageDataUrl: string) => Promise<string | null>;
 }
+
+export interface RegionCaptureApi {
+  start: () => Promise<void>;
+  capture: (x: number, y: number, width: number, height: number) => Promise<Screenshot>;
+  cancel: () => Promise<void>;
+}

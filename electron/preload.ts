@@ -32,4 +32,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
     deleteScreenshot: (imagePath: string) => ipcRenderer.invoke('screenshot:delete', imagePath),
     saveScreenshot: (imageDataUrl: string) => ipcRenderer.invoke('screenshot:save', imageDataUrl),
   },
+  regionCapture: {
+    start: () => ipcRenderer.invoke('region-capture:start'),
+    capture: (x: number, y: number, width: number, height: number) => ipcRenderer.invoke('region-capture:capture', x, y, width, height),
+    cancel: () => ipcRenderer.invoke('region-capture:cancel'),
+  },
 })

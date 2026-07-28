@@ -27,5 +27,10 @@ contextBridge.exposeInMainWorld("electronAPI", {
     copyToClipboard: (imageDataUrl) => ipcRenderer.invoke("screenshot:copy", imageDataUrl),
     deleteScreenshot: (imagePath) => ipcRenderer.invoke("screenshot:delete", imagePath),
     saveScreenshot: (imageDataUrl) => ipcRenderer.invoke("screenshot:save", imageDataUrl)
+  },
+  regionCapture: {
+    start: () => ipcRenderer.invoke("region-capture:start"),
+    capture: (x, y, width, height) => ipcRenderer.invoke("region-capture:capture", x, y, width, height),
+    cancel: () => ipcRenderer.invoke("region-capture:cancel")
   }
 });
