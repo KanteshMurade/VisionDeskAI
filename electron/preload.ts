@@ -1,4 +1,6 @@
-import { ipcRenderer, contextBridge } from 'electron'
+import electron from 'electron'
+
+const { ipcRenderer, contextBridge } = electron
 
 // --------- Expose some API to the Renderer process ---------
 contextBridge.exposeInMainWorld('ipcRenderer', {
@@ -21,4 +23,13 @@ contextBridge.exposeInMainWorld('ipcRenderer', {
 
   // You can expose other APTs you need here.
   // ...
+})
+
+contextBridge.exposeInMainWorld('electronAPI', {
+  screenshots: {
+    captureFullScreen: () => ipcRenderer.invoke('screenshot:capture-full'),
+    copyToClipboard: (imageDataUrl: string) => ipcRenderer.invoke('screenshot:copy', imageDataUrl),
+    deleteScreenshot: (imagePath: string) => ipcRenderer.invoke('screenshot:delete', imagePath),
+    saveScreenshot: (imageDataUrl: string) => ipcRenderer.invoke('screenshot:save', imageDataUrl),
+  },
 })

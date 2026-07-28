@@ -7,6 +7,7 @@ import {
   FaPuzzlePiece,
   FaCog,
   FaComments,
+  FaCameraRetro,
 } from "react-icons/fa";
 
 const menu = [
@@ -17,6 +18,7 @@ const menu = [
   { name: "Plugins", path: "/plugins", icon: <FaPuzzlePiece /> },
   { name: "Settings", path: "/settings", icon: <FaCog /> },
   { name: "Chat", path: "/chat", icon: <FaComments /> },
+  { name: "Screenshot", path: "/capture", icon: <FaCameraRetro /> },
 ];
 
 export default function Sidebar() {

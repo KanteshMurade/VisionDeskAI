@@ -1,0 +1,8 @@
+.page { display: flex; flex-direction: column; gap: 24px; height: 100%; margin: 0 auto; max-width: 1000px; }
+.captureActions { display: flex; flex-wrap: wrap; gap: 10px; }
+.preview { align-items: center; background: #111827; border: 1px dashed #334155; border-radius: 14px; display: flex; justify-content: center; min-height: 330px; overflow: hidden; padding: 14px; }
+.preview img { border-radius: 8px; display: block; max-height: 500px; max-width: 100%; object-fit: contain; }
+.empty { color: #94a3b8; text-align: center; }
+.previewActions { display: flex; flex-wrap: wrap; gap: 10px; }
+.error { color: #fda4af; margin: 0; }
+.timestamp { color: #94a3b8; font-size: .85rem; margin: 0; }
