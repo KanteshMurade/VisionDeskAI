@@ -1,0 +1,8 @@
+.dashboard { display: flex; flex-direction: column; gap: 28px; margin: 0 auto; max-width: 1120px; min-height: 100%; }
+.statusGrid { display: grid; gap: 18px; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.statusCard { display: flex; flex-direction: column; gap: 14px; min-height: 154px; }
+.statusLabel { color: #94a3b8; font-size: .88rem; font-weight: 600; margin: 0; }
+.statusValue { color: #f8fafc; font-size: 1.55rem; font-weight: 700; margin: 0; }
+.statusFooter { margin-top: auto; }
+.bottomBar { margin-top: auto; padding-top: 12px; }
+@media (max-width: 800px) { .statusGrid { grid-template-columns: 1fr; } }
